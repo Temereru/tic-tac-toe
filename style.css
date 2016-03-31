@@ -1,0 +1,35 @@
+.black {
+  width: 80px;
+  height: 80px;
+  background-color: black;
+  display: inline-block;
+  border: 1px solid black;
+}
+
+.white {
+  width: 80px;
+  height: 80px;
+  background-color: white;
+  display: inline-block;
+  border: 1px solid white;
+}
+
+.row {
+  height: 82px;
+  width: 246px;
+}
+
+.container {
+  display: inline-block;
+  border: 1px solid black;
+  position: relative;
+}
+
+i {
+  position: fixed;
+  margin-left: 7px;
+}
+
+.tile {
+  border: 1px solid black;
+}

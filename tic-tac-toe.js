@@ -1,194 +1,97 @@
-// TODO
-// Create a Player class that has one attribute, `name`.
-// 
-// Verify that you can create a new instance of Player:
-//
-// p = new Player("Mary");
-// p.name
-// // Mary
-//
-var Player = undefined; /* TODO replace undefined with class definition */
+ function Player(name){
+  this.name = name;
+}
 
-// TicTacToe class is the main class of the game. The constructor should take
-// two arguments, the two names of the players.
-var TicTacToe = function (/* TODO fill in arguments */) {
-  this.player1 = new Player(/* TODO */);
-  this.player2 = new Player(/* TODO */);
-
+function TicTacToe(name1,name2) {
+  this.player1 = new Player(name1);
+  this.player2 = new Player(name2);
+  
   this.reset();
-};
+  this.board.initialize();
+  this.computerPlay();
+}
 
-// TODO
-// Reset the game with a new board and player 1 as the current player.
+
+TicTacToe.prototype.message = function(message){
+  $('#messageContainer').empty();
+  $('#messageContainer').append("<p>" + message +"</p>");
+}
+
 TicTacToe.prototype.reset = function () {
+  this.currentPlayer = this.player1;
+  this.board = new Board();
+  this.board.update();
+  $('#messageContainer').empty();
+  this.computerPlay();
 }
 
-// Now, verify that you can create an instance of TicTacToe:
-//
-// game = new TicTacToe("John", "Mary");
-// game.player1.name
-// // John
-// game.player2.name
-// // Mary
-// game.board
-// // array of arrays representing board state
-
-// At this point, you should scroll down and implement
-// TicTacToe.prototype.print, which prints the state of the board. This will be
-// necessary to play the game and to debug our program as we write it!
-//
-// Once you've done that, this should work:
-//
-// game = new TicTacToe("John", "Mary");
-// game.board.print()
-//
-// 123
-// 456
-// 789
-
-// TODO
-// Print the board and the current player's name.
 TicTacToe.prototype.print = function () {
+  this.board.update();
+
+  if(this.board.winner() === undefined){
+    this.message("It's " + this.currentPlayer.name +"'s turn!");
+  }  
 }
 
-// game = new TicTacToe("John", "Mary");
-// game.print()
-//
-// 123
-// 456
-// 789
-// It's John's turn!
-
-// TODO
-// Switch this.currentPlayer to the other player.
 TicTacToe.prototype.switchCurrentPlayer = function () {
+  this.currentPlayer === this.player1 ? this.currentPlayer = this.player2 : this.currentPlayer = this.player1;
 }
 
-// game = new TicTacToe("John", "Mary");
-// game.print()
-//
-// 123
-// 456
-// 789
-// It's John's turn!
-//
-// game.switchCurrentPlayer();
-// game.print()
-//
-// 123
-// 456
-// 789
-// It's Mary's turn!
-
-// TODO
-// Should return "X" if the current turn is player 1's. Return "O" otherwise.
 TicTacToe.prototype.currentChar = function () {
+  var char = ''
+  this.currentPlayer === this.player1 ? char = 'X' : char = 'O';
+  return char;
 }
 
-// game = new TicTacToe("John", "Mary");
-// game.currentChar();
-// X
-// game.switchCurrentPlayer();
-// game.currentChar();
-// O
-// game.switchCurrentPlayer();
-// game.currentChar();
-// X
-
-// TODO
-// Play a turn. Takes a position as input and play that position for the current
-// player.
-//
-// If the game is already over, it's an invalid move. Print out "Game is over."
-//
-// If, after the turn is played, there is a winner, print out the player's name
-// as winner.
-//
-// If the game is now tied, print this out.
-//
 TicTacToe.prototype.play = function (position) {
-
-  // TODO, using the functions you implemented above:
-  // - Check if the game is over. Return if it is.
-  // - Play the given position.
-  // - Check for a winner after position is played.
-  // - Switch the current player to the next one.
-  // - Print the state of the board and next person's turn.
+  var hasWinner = this.board.winner();
+  if(hasWinner === undefined){
+    var legal = this.board.play(this.currentChar(),position);
+    if(legal === undefined){
+      return;
+    }
+    hasWinner = this.board.winner();
+    if(hasWinner === undefined){
+      this.switchCurrentPlayer();
+      console.log(this.currentPlayer.name)
+      this.computerPlay();
+      this.print();
+    }else{
+      this.board.update();
+      this.message(this.detrmineWinner(hasWinner));
+    }
+  }
+  else{    
+    this.message(this.detrmineWinner(hasWinner))
+  }
 }
 
-// You should now be able to play the game. Congrats, you're done! (But you may
-// have some bugs in the edge-cases. Seek them out).
-//
-// g = new TicTacToe("John", "Mary")
-// g.print()
-//
-// 123
-// 456
-// 789
-// It is John's turn!
-//
-// g.play(1)
-//
-// X23
-// 456
-// 789
-// It is Mary's turn!
-//
-// g.play(2)
-//
-// XO3
-// 456
-// 789
-// It is John's turn!
-//
-// g.play(5)
-//
-// XO3
-// 4X6
-// 789
-// It is Mary's turn!
-//
-// g.play(3)
-//
-// XOO
-// 4X6
-// 789
-// It is John's turn!
-//
-// g.play(9)
-// Wow! John has won!
-
-// The Board class holds the state of the board. To make it simple, the starting
-// state is the positions 1 to 9.
-var Board = function () {
-  this.board = [["1", "2", "3"],
-                ["4", "5", "6"],
-                ["7", "8", "9"]];
+TicTacToe.prototype.detrmineWinner = function(hasWinner){
+  if(hasWinner === 'X'){
+    winner = this.player1.name;
+  }else if(hasWinner === 'O'){
+    winner = this.player2.name;
+  }else if(hasWinner === 'tie'){
+    return 'The game ended with a tie';
+  }
+  return "The winner is " + winner;
 }
 
-// TODO
-// Prints the board state to the console. At the beginning, the board should
-// just show the positions:
-//
-// 123
-// 456
-// 789
-//
-// As moves are made, these positions turn into Xs and Os:
-//
-// 1X3
-// 456
-// 78O
-//
-// As a challenge, print out a better-looking board like a real tic-tac-toe
-// game.
-//
-// This is a fun exercise but not part of the core OO lesson. Don't spend too
-// much time on this. Ask for help if you get stuck on this part.
-//
+function Board () {
+  this.board = [["e", "e", "e"],
+                ["e", "e", "e"],
+                ["e", "e", "e"]];
+}
+
 // As a harder challenge, write the board in HTML and use jQuery for user input.
 //
 Board.prototype.print = function () {
+  for(i = 0; i < this.board.length; i++){
+    var line = '';
+    for(j = 0; j < this.board[i].length; j++){
+      line += this.board[i][j];
+    }
+  }
 };
 
 // TODO: This is the second-hardest function in this game. If you want to
@@ -199,12 +102,12 @@ Board.prototype.print = function () {
 // already-played positions.
 Board.prototype.play = function (char, position) {
   if (char !== "X" && char != "O") {
-    console.log("Invalid character. Try again.");
+    this.message("Invalid character. Try again.");
     return;
   }
 
   if (position < 1 || position > 9) {
-    console.log("Positions must be from 1 to 9. Try again.");
+    this.message("Positions must be from 1 to 9. Try again.");
     return;
   }
 
@@ -213,13 +116,13 @@ Board.prototype.play = function (char, position) {
 
   var currentChar = this.board[row][col];
   if (currentChar === "X" || currentChar === "O") {
-    console.log("Position has already been played. Try again.");
+    this.message("Position has already been played. Try again.");
     return;
   }
 
   this.board[row][col] = char;
 
-  return;
+  return 'legal';
 };
 
 // TODO: This is the hardest function in this game. If you want to challenge
@@ -281,3 +184,188 @@ Board.prototype.winner = function () {
     return;
   }
 };
+
+Board.prototype.initialize = function(){
+  for(i = 0;i < this.board.length; i++){
+    console.log('started');
+    $('#board').append('<div class="row margin"></div>');
+    for(j = 0;j < this.board[i].length; j++){
+      $($('#board').children('.row').get(i)).append('<div class="white tile" id="' +  i + '-' + j + '"></div>');      
+    }     
+  }
+}
+
+Board.prototype.update = function(){
+    for(i = 0; i < this.board.length; i++){
+      for(j = 0; j < this.board[i].length; j++){
+        var piece = this.board[i][j];
+        tile = '#' + i + '-' + j;
+        switch(piece){
+          case 'X':
+            $(tile).append('<i class="fa fa-times fa-5x"></i>');
+            break;
+          case 'O':
+            $(tile).append('<i class="fa fa-circle-o fa-5x"></i>');
+            break;
+          default:
+            $(tile).empty();
+            break;
+        }
+      }
+    }   
+}
+
+Board.prototype.canWinInOne = function(char){
+  var arr = [];
+  arr = this.board.map(function(obj){return obj.map(function(obj1){return obj1;});});
+  var checkArr = arr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+  var tempBoard = new Board();
+  var indexes = [];
+  for(i = 0; i < arr.length; i++){
+    var idx = arr[i].indexOf('e');
+    while(idx != -1){
+      indexes.push({y:i,x:idx});
+      idx = arr[i].indexOf('e', idx + 1);
+    }
+  }
+  for(j = 0; j < indexes.length; j++){
+    checkArr[indexes[j].y][indexes[j].x] = char;
+    tempBoard.board = checkArr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+    // console.log(tempBoard.board);
+    // debugger;
+    var hasWinner = tempBoard.winner();
+    if(hasWinner !== undefined){
+      return true;
+    }
+
+    checkArr = arr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+  }
+  return false;
+}
+
+Board.prototype.canWinInTwo = function(char){
+  chars = ["X","O"];
+  if(char !== chars[0]){
+    chars.reverse();
+  }
+  var arr = [];
+  arr = this.board.map(function(obj){return obj.map(function(obj1){return obj1;});});
+  var checkArr = arr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+  var tempBoard = new Board();
+  var indexes = [];
+  for(i = 0; i < arr.length; i++){
+    var idx = arr[i].indexOf('e');
+    while(idx != -1){
+      indexes.push({y:i,x:idx});
+      idx = arr[i].indexOf('e', idx + 1);
+    }
+  }
+  for(m = 0; m < indexes.length; m++){
+    checkArr[indexes[m].y][indexes[m].x] = chars[0];
+    var checkArr2 = checkArr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+    var tempIndexes = indexes.slice();
+    tempIndexes.splice(m,1);
+    for(j = 0; j < tempIndexes.length; j++){
+      checkArr2[tempIndexes[j].y][tempIndexes[j].x] = chars[1];
+      tempBoard.board = checkArr2.map(function(obj){return obj.map(function(obj1){return obj1;});});
+      var ans = tempBoard.canWinInOne(chars[0]);
+      if(ans){
+        return true;
+      }
+      checkArr2 = checkArr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+      // debugger
+    }
+    var checkArr = arr.map(function(obj){return obj.map(function(obj1){return obj1;});});
+    // debugger
+  }
+
+  return false;
+}
+
+Board.prototype.message = function(message){
+  $('#messageContainer').empty();
+  $('#messageContainer').append("<p>" + message +"</p>");
+}
+
+TicTacToe.prototype.computerPlay = function(){
+  var counter = 0;
+  while(this.currentPlayer === this.player1 && this.board.winner() === undefined){
+    var rand = Math.floor(Math.random() * (10 - 1)) + 1;
+    console.log(rand);
+    this.play(rand);
+    counter++
+    console.log(counter);
+    if(counter > 100){
+      break;
+    }
+  }
+  this.print();
+}
+
+game = new TicTacToe("John", "Mary");
+
+$('#board').on('click', '.tile', function(){
+  var str = $(this).attr('id');
+  var num = 0;
+  switch(str){
+    case '0-0':
+      num = 1;
+      break;
+    case '0-1':
+      num = 2;
+      break;
+    case '0-2':
+      num = 3;
+      break;
+    case '1-0':
+      num = 4;
+      break;
+    case '1-1':
+      num = 5;
+      break;
+    case '1-2':
+      num = 6;
+      break;
+    case '2-0':
+      num = 7;
+      break;
+    case '2-1':
+      num = 8;
+      break;
+    case '2-2':
+      num = 9;
+      break;
+  }
+  game.play(num);
+});
+
+$('#reset').on('click', function(){
+  game.reset();
+})
+
+$('#canWin1').on('click', function(){
+  var arr = game.board.board;
+  var char = game.currentChar();
+  var ans = game.board.canWinInOne(char);
+  if(ans){
+    game.message('Can win in This Turn');
+  }else{
+    game.message("Can't win in This Turn");
+  }
+  game.board.update();
+})
+
+$('#canWin2').on('click', function(){
+  var arr = game.board.board;
+  var char = game.currentChar();
+  var ans = game.board.canWinInTwo(char);
+  if(ans){
+    game.message('Can win in Two turns');
+  }else{
+    game.message("Can't win in Two turns");
+  }
+  game.board.update();
+})
+
+
+
