@@ -53,7 +53,7 @@ TicTacToe.prototype.play = function (position) {
     hasWinner = this.board.winner();
     if(hasWinner === undefined){
       this.switchCurrentPlayer();
-      console.log(this.currentPlayer.name)
+      this.print();
       this.computerPlay();
       this.print();
     }else{
@@ -187,7 +187,6 @@ Board.prototype.winner = function () {
 
 Board.prototype.initialize = function(){
   for(i = 0;i < this.board.length; i++){
-    console.log('started');
     $('#board').append('<div class="row margin"></div>');
     for(j = 0;j < this.board[i].length; j++){
       $($('#board').children('.row').get(i)).append('<div class="white tile" id="' +  i + '-' + j + '"></div>');      
@@ -287,14 +286,84 @@ Board.prototype.message = function(message){
   $('#messageContainer').append("<p>" + message +"</p>");
 }
 
+Board.prototype.chooseMove = function(boardState , currentChar, depth){
+  var indexes = [];
+  depth++;
+  if(depth === 6){
+    return;
+  }
+  var arr = boardState.map(function(obj){return obj.map(function(obj1){return obj1;});});
+  var checkArr = arr.map(function(obj){return obj.map(function(obj1){return obj1;});});;
+  var chars = ['X','O'];
+  if(currentChar === chars[0]){
+    var nextChar = chars[1];
+  }else{
+    var nextChar = chars[0];
+  }
+  var tempBoard = new Board();
+  var scoreBoard = [];
+  var score = 0;
+  for(var i = 0; i < arr.length; i++){
+    var idx = arr[i].indexOf('e');
+    while(idx != -1){
+      indexes.push({y:i,x:idx});
+      idx = arr[i].indexOf('e', idx + 1);
+    }
+  }
+  for(var j = 0; j < indexes.length; j++){
+    checkArr[indexes[j].y][indexes[j].x] = currentChar;
+    tempBoard.board = checkArr.map(function(obj){return obj.map(function(obj1){return obj1;});});;
+    var hasWinner = tempBoard.winner();
+    if(hasWinner === chars[0]){
+      scoreBoard.push(10 - depth);
+    }else if(hasWinner === chars[1]){
+      scoreBoard.push(depth - 10);
+    }else if(hasWinner === 'tie'){
+      scoreBoard.push(0);
+    }else{
+      scoreBoard.push(this.chooseMove(tempBoard.board,nextChar,depth));
+    }
+    checkArr = arr.map(function(obj){return obj.map(function(obj1){return obj1;});});;
+  } 
+  if(depth !== 1){
+    var biggestIndex = 0;
+    var biggestNum = -100;
+    var lowestNum = 100;
+    for(var l = 0; l < scoreBoard.length; l++){
+      if(scoreBoard[l] > biggestNum){
+      biggestNum = scoreBoard[l];
+      biggestIndex = l;
+      }
+      if(lowestNum > scoreBoard[l]){
+        lowestNum = scoreBoard[l];
+      }
+    }
+    if(currentChar === chars[0]){
+      return biggestNum;
+    }else{
+      return lowestNum;
+    }
+  }else{
+    var biggestIndex = 0;
+    var biggestNum = -100;
+    for(var l = 0; l < scoreBoard.length; l++){
+      if(scoreBoard[l] > biggestNum){
+        biggestNum = scoreBoard[l];
+        biggestIndex = l;
+      }
+    }
+    return move(indexes[biggestIndex]);
+  }
+}
+
 TicTacToe.prototype.computerPlay = function(){
   var counter = 0;
   while(this.currentPlayer === this.player1 && this.board.winner() === undefined){
-    var rand = Math.floor(Math.random() * (10 - 1)) + 1;
-    console.log(rand);
-    this.play(rand);
+    // var rand = Math.floor(Math.random() * (10 - 1)) + 1;
+    // console.log(rand);
+    // this.play(rand);
+    this.play(this.board.chooseMove(this.board.board,this.currentChar(),0));
     counter++
-    console.log(counter);
     if(counter > 100){
       break;
     }
@@ -302,7 +371,7 @@ TicTacToe.prototype.computerPlay = function(){
   this.print();
 }
 
-game = new TicTacToe("John", "Mary");
+game = new TicTacToe("Computer", "Player");
 
 $('#board').on('click', '.tile', function(){
   var str = $(this).attr('id');
@@ -366,6 +435,59 @@ $('#canWin2').on('click', function(){
   }
   game.board.update();
 })
+
+
+
+
+
+
+
+
+function move(index){
+  y = index.y;
+  x = index.x;
+  switch(y){
+    case 0:
+      switch(x){
+        case 0:
+          return 1;
+          break;
+        case 1:
+          return 2;
+          break;
+        case 2:
+          return 3
+          break;
+      }
+      break;
+    case 1:
+      switch(x){
+        case 0:
+          return 4;
+          break;
+        case 1:
+          return 5;
+          break;
+        case 2:
+          return 6;
+          break;
+      }
+      break;
+    case 2:
+      switch(x){
+        case 0:
+          return 7;
+          break;
+        case 1:
+          return 8;
+          break;
+        case 2:
+          return 9;
+          break;
+      }
+      break;
+  }
+}
 
 
 
